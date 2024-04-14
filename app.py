@@ -14,13 +14,13 @@ app = FastAPI()
 # Ruta de ejemplo
 @app.get("/")
 async def read_root():
-    return {"message": "Hello, world!"}
+    return {"message": "Hello World!"}
 
 if __name__ == "__main__":
-    # Obtener el puerto de la variable de entorno PORT, o usar 8000 por defecto
-    port = int(os.environ.get("PORT", 8000))
+    # Obtener el puerto de la variable de entorno PORT, o usar 4000 por defecto
+    port = int(os.environ.get("PORT", 4000))
     import uvicorn
-    # Escuchar en 0.0.0.0 para aceptar conexiones externas
+    # Escuchar en todas las interfaces de red para aceptar conexiones externas
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 models.Base.metadata.create_all(bind=engine)
