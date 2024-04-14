@@ -6,12 +6,22 @@ from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from datetime import date
 
+from fastapi import FastAPI
+import os
+
 app = FastAPI()
 
+# Ruta de ejemplo
 @app.get("/")
-async def root():
-    return {"message": "a"}
+async def read_root():
+    return {"message": "Hello, world!"}
 
+if __name__ == "__main__":
+    # Obtener el puerto de la variable de entorno PORT, o usar 8000 por defecto
+    port = int(os.environ.get("PORT", 8000))
+    import uvicorn
+    # Escuchar en 0.0.0.0 para aceptar conexiones externas
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 models.Base.metadata.create_all(bind=engine)
 
