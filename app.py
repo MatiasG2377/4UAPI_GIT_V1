@@ -8,6 +8,11 @@ from datetime import date
 
 app = FastAPI()
 
+@app.get("/")
+async def root():
+    return {"message": "a"}
+
+
 models.Base.metadata.create_all(bind=engine)
 
 class UserBase(BaseModel):
