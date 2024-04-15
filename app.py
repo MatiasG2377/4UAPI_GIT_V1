@@ -5,11 +5,41 @@ import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from datetime import date
+from dotenv import load_dotenv
+from routes.auth import auth_routes
 
 from fastapi import FastAPI
 import os
 
+#!CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.auth import auth_routes
+
 app = FastAPI()
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir todos los orígenes (debes restringirlo en producción)
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Permitir estos métodos HTTP
+    allow_headers=["*"],  # Permitir todos los encabezados
+)
+
+# Agrega tus rutas aquí
+app.include_router(auth_routes, prefix="/api")  # Ejemplo de cómo agregar tus rutas
+
+#!CORS
+
+#! JWT - INICIO DE SESIÓN
+app.include_router(auth_routes, prefix="/api")
+load_dotenv()
+
+
+
+
+#!CRUD DE LAS TABLAS
 
 # Ruta de ejemplo
 @app.get("/")
