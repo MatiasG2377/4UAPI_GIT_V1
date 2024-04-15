@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, EmailStr
 from functions_jwt import validate_token, write_token
 from fastapi.responses import JSONResponse
@@ -26,6 +26,22 @@ def login(user: User):
 
 @auth_routes.post("/verify/token")
 def verify_token(Authorization: str = Header(None)):
-    token = Authorization.split(" ")[1]
+    if Authorization is None:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+
+    parts = Authorization.split(" ")
+    if len(parts) != 2:
+        raise HTTPException(status_code=401, detail="Invalid Authorization header format")
+
+    token = parts[1]
+    print(token)
     return validate_token(token, output=True)
+
+
+
+# @auth_routes.post("/verify/token")
+# def verify_token(Authorization: str = Header(None)):
+#     token = Authorization.split(" ")[1]
+#     print(token)
+#     return validate_token(token, output=True)
     
