@@ -1,6 +1,13 @@
+#Comando para activar env
+#Comando para ejecutar:
+#* uvicorn app:app --reload
+#* env\Scripts\activate
+
+
 from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Union
 import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -10,35 +17,68 @@ from routes.auth import auth_routes
 
 from fastapi import FastAPI
 import os
+import requests
 
+#?-----------------------------------------------------------------------------------------------------------------------------------------
 #!CORS
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from routes.auth import auth_routes
 
 app = FastAPI()
-
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir todos los orígenes (debes restringirlo en producción)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Permitir estos métodos HTTP
-    allow_headers=["*"],  # Permitir todos los encabezados
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Agrega tus rutas aquí
-app.include_router(auth_routes, prefix="/api")  # Ejemplo de cómo agregar tus rutas
+#?-----------------------------------------------------------------------------------------------------------------------------------------
+#! Manejo del chat
 
-#!CORS
+#Codigos del servidor de chat
+PROJECT_ID = "99471996-207c-4216-837b-fa6a66dc5f6c"
+PRIVATE_KEY = "2b5fe212-44cd-4f3c-96cc-ee17872e64b8"
 
+#Modelo utilizado por chatengine
+class User_chat(BaseModel):
+    username: str
+    secret: str 
+    email: Union[str, None] = None
+    first_name: Union[str,None] = None
+    last_name: Union[str,None] = None
+    
+#Rutas para registro y login en chatengine
+@app.post('/login/')
+async def root(user_chat:User_chat):
+    response = requests.get('https://api.chatengine.io/users/me/',
+        headers={
+            "Project-ID": PROJECT_ID,
+            "User-Name": user_chat.username,
+            "User-Secret": user_chat.secret
+        }
+    )
+    return response.json()
+
+@app.post('/signup/')
+async def root(user_chat:User_chat):
+    response = requests.post('https://api.chatengine.io/users/',
+      data={
+          "username": user_chat.username,
+          "secret": user_chat.secret,
+          "email": user_chat.email,
+          "first_name": user_chat.first_name,
+          "last_name": user_chat.last_name,
+        },
+      headers={"Private-Key": PRIVATE_KEY}                       
+    )
+    return response.json()
+
+#?-----------------------------------------------------------------------------------------------------------------------------------------
 #! JWT - INICIO DE SESIÓN
-app.include_router(auth_routes, prefix="/api")
+app.include_router(auth_routes, prefix="/api")  #Agregar el prefijo api en el uso de JWT
 load_dotenv()
 
-
-
-
+#?-----------------------------------------------------------------------------------------------------------------------------------------
 #!CRUD DE LAS TABLAS
 
 # Ruta de ejemplo
@@ -54,6 +94,7 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 models.Base.metadata.create_all(bind=engine)
+
 
 class UserBase(BaseModel):
     user_name: str 
