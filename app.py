@@ -11,7 +11,7 @@ from routes.auth import auth_routes
 from fastapi import FastAPI
 import os
 
-#!CORS
+#! REvisión de los CORS
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import auth_routes
