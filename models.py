@@ -12,18 +12,19 @@ class User(Base):
     user_date = Column(Date)
     user_password = Column(String(45))
     user_stars = Column(Integer)
-    messages_sent = relationship("Message", foreign_keys="[Message.sms_sender]")
-    messages_received = relationship("Message", foreign_keys="[Message.sms_recipient]")
+    uid_firebase = Column(String(255))  # Añade el atributo UID
+    # messages_sent = relationship("Message", foreign_keys="[Message.sms_sender]")
+    # messages_received = relationship("Message", foreign_keys="[Message.sms_recipient]")
     products = relationship("Product")
 
-class Message(Base):
-    __tablename__ = 'message'
+# class Message(Base):
+#     __tablename__ = 'message'
 
-    sms_id = Column(Integer, primary_key=True, autoincrement=True)
-    sms_content = Column(String(255))
-    sms_date = Column(Date)
-    sms_sender = Column(Integer, ForeignKey('User.user_id'))
-    sms_recipient = Column(Integer, ForeignKey('User.user_id'))
+#     sms_id = Column(Integer, primary_key=True, autoincrement=True)
+#     sms_content = Column(String(255))
+#     sms_date = Column(Date)
+#     sms_sender = Column(Integer, ForeignKey('User.user_id'))
+#     sms_recipient = Column(Integer, ForeignKey('User.user_id'))
 
 class Categorie(Base):
     __tablename__ = 'categorie'

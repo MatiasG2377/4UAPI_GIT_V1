@@ -103,6 +103,7 @@ class UserBase(BaseModel):
     user_date: date
     user_password: str
     user_stars: int
+    uid_firebase: str
 
 class UserCreate(UserBase):
     pass
