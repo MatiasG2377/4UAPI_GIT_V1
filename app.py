@@ -136,7 +136,7 @@ class ProductBase(BaseModel):
     prod_name: str
     prod_price: float
     prod_desc: str
-    prod_img: bytes
+    prod_img: str
     prod_cate_id: int
     prod_user_id: int
 

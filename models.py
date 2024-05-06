@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, ForeignKey, Integer, String, DECIMAL, BLOB
+from sqlalchemy import Column, Date, ForeignKey, Integer, String, Text, DECIMAL, BLOB
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -39,7 +39,7 @@ class Product(Base):
     prod_name = Column(String(255))
     prod_price = Column(DECIMAL(10, 2))
     prod_desc = Column(String(255))
-    prod_img = Column(BLOB)
+    prod_img = Column(Text)
     prod_cate_id = Column(Integer, ForeignKey('categorie.cate_id'))
     prod_user_id = Column(Integer, ForeignKey('User.user_id'))
 
