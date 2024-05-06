@@ -12,9 +12,7 @@ class User(Base):
     user_date = Column(Date)
     user_password = Column(String(45))
     user_stars = Column(Integer)
-    uid_firebase = Column(String(255))  # Añade el atributo UID
-    # messages_sent = relationship("Message", foreign_keys="[Message.sms_sender]")
-    # messages_received = relationship("Message", foreign_keys="[Message.sms_recipient]")
+    uid_firebase = Column(String(255))
     products = relationship("Product")
 
 # class Message(Base):

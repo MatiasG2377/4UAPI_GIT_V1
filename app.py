@@ -92,7 +92,7 @@ if __name__ == "__main__":
     import uvicorn
     # Escuchar en todas las interfaces de red para aceptar conexiones externas
     uvicorn.run(app, host="0.0.0.0", port=port)
-
+    
 models.Base.metadata.create_all(bind=engine)
 
 
