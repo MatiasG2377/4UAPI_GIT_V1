@@ -8,14 +8,15 @@ from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Union
-import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from datetime import date
 from dotenv import load_dotenv
 from routes.auth import auth_routes
 
-from fastapi import FastAPI
+import models
+
+import httpx
 import os
 import requests
 
@@ -58,7 +59,6 @@ async def root(user_chat:User_chat):
         }
     )
     return response.json()
-
 @app.post('/signup/')
 async def root(user_chat:User_chat):
     response = requests.post('https://api.chatengine.io/users/',
@@ -276,6 +276,15 @@ async def delete_product(product_id: int, db: Session = db_dependency):
     return {}
 
 
+@app.get("/productos", response_model=List[Product])
+def buscar_productos_por_nombre(nombre: str = None, db: Session = Depends(get_db)):
+    query = db.query(models.Product)
+    if nombre:
+        query = query.filter(models.Product.prod_name.ilike(f"%{nombre}%"))
+    productos = query.all()
+    return productos
+    
+    
 # Operaciones CRUD para la tabla de términos
 @app.post("/terms/", response_model=Terms, status_code=status.HTTP_201_CREATED)
 async def create_terms(terms: TermsCreate, db: Session = db_dependency):
