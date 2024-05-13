@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Union
 from database import engine, SessionLocal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from datetime import date
 from dotenv import load_dotenv
 from routes.auth import auth_routes
@@ -33,52 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#?-----------------------------------------------------------------------------------------------------------------------------------------
-#! Manejo del chat
 
-#Codigos del servidor de chat
-PROJECT_ID = "99471996-207c-4216-837b-fa6a66dc5f6c"
-PRIVATE_KEY = "2b5fe212-44cd-4f3c-96cc-ee17872e64b8"
-
-#Modelo utilizado por chatengine
-class User_chat(BaseModel):
-    username: str
-    secret: str 
-    email: Union[str, None] = None
-    first_name: Union[str,None] = None
-    last_name: Union[str,None] = None
-    
-#Rutas para registro y login en chatengine
-@app.post('/login/')
-async def root(user_chat:User_chat):
-    response = requests.get('https://api.chatengine.io/users/me/',
-        headers={
-            "Project-ID": PROJECT_ID,
-            "User-Name": user_chat.username,
-            "User-Secret": user_chat.secret
-        }
-    )
-    return response.json()
-@app.post('/signup/')
-async def root(user_chat:User_chat):
-    response = requests.post('https://api.chatengine.io/users/',
-      data={
-          "username": user_chat.username,
-          "secret": user_chat.secret,
-          "email": user_chat.email,
-          "first_name": user_chat.first_name,
-          "last_name": user_chat.last_name,
-        },
-      headers={"Private-Key": PRIVATE_KEY}                       
-    )
-    return response.json()
-
-#?-----------------------------------------------------------------------------------------------------------------------------------------
-#! JWT - INICIO DE SESIÓN
-app.include_router(auth_routes, prefix="/api")  #Agregar el prefijo api en el uso de JWT
-load_dotenv()
-
-#?-----------------------------------------------------------------------------------------------------------------------------------------
 #!CRUD DE LAS TABLAS
 
 # Ruta de ejemplo
@@ -276,6 +231,7 @@ async def delete_product(product_id: int, db: Session = db_dependency):
     return {}
 
 
+
 @app.get("/productos", response_model=List[Product])
 def buscar_productos_por_nombre(nombre: str = None, db: Session = Depends(get_db)):
     query = db.query(models.Product)
@@ -284,7 +240,16 @@ def buscar_productos_por_nombre(nombre: str = None, db: Session = Depends(get_db
     productos = query.all()
     return productos
     
-    
+
+@app.get("/productos_cate", response_model=List[Product])
+def buscar_productos_por_categoria(categoria_id: int = None, db: Session = Depends(get_db)):
+    query = db.query(models.Product).join(models.Categorie)
+    if categoria_id:
+        query = query.filter(models.Categorie.cate_id == categoria_id)
+    productos = query.all()
+    return productos
+
+
 # Operaciones CRUD para la tabla de términos
 @app.post("/terms/", response_model=Terms, status_code=status.HTTP_201_CREATED)
 async def create_terms(terms: TermsCreate, db: Session = db_dependency):
@@ -297,3 +262,52 @@ async def create_terms(terms: TermsCreate, db: Session = db_dependency):
 @app.get("/terms/", response_model=List[Terms], status_code=status.HTTP_200_OK)
 async def read_all_terms(db: Session = db_dependency):
     return db.query(models.Terms).all()
+
+
+
+#?-----------------------------------------------------------------------------------------------------------------------------------------
+#! Manejo del chat
+
+#Codigos del servidor de chat
+PROJECT_ID = "99471996-207c-4216-837b-fa6a66dc5f6c"
+PRIVATE_KEY = "2b5fe212-44cd-4f3c-96cc-ee17872e64b8"
+
+#Modelo utilizado por chatengine
+class User_chat(BaseModel):
+    username: str
+    secret: str 
+    email: Union[str, None] = None
+    first_name: Union[str,None] = None
+    last_name: Union[str,None] = None
+    
+#Rutas para registro y login en chatengine
+@app.post('/login/')
+async def root(user_chat:User_chat):
+    response = requests.get('https://api.chatengine.io/users/me/',
+        headers={
+            "Project-ID": PROJECT_ID,
+            "User-Name": user_chat.username,
+            "User-Secret": user_chat.secret
+        }
+    )
+    return response.json()
+@app.post('/signup/')
+async def root(user_chat:User_chat):
+    response = requests.post('https://api.chatengine.io/users/',
+      data={
+          "username": user_chat.username,
+          "secret": user_chat.secret,
+          "email": user_chat.email,
+          "first_name": user_chat.first_name,
+          "last_name": user_chat.last_name,
+        },
+      headers={"Private-Key": PRIVATE_KEY}                       
+    )
+    return response.json()
+
+#?-----------------------------------------------------------------------------------------------------------------------------------------
+#! JWT - INICIO DE SESIÓN
+app.include_router(auth_routes, prefix="/api")  #Agregar el prefijo api en el uso de JWT
+load_dotenv()
+
+#?-----------------------------------------------------------------------------------------------------------------------------------------
